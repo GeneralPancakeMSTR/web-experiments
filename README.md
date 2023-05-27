@@ -1,3 +1,6 @@
+## Branch Minimal 
+A minimal functional example. 
+
 ## Components
 - NodeJS (Runtime)
 - Typescript 

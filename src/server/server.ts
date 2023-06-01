@@ -5,8 +5,6 @@ const app = express();
 const hostname = '0.0.0.0';
 const port = 8000;
 
-console.log("Hello World");
-
 app.use(express.static(path.join(__dirname,'../dist')));
 
 app.get('/',(req:express.Request,res:express.Response)=>{

@@ -1,26 +1,26 @@
-import express from 'express';
+import express, {Request, Response} from 'express';
 import path from 'path';
 
-const app = express();
+const app = express(); 
 const hostname = '0.0.0.0';
 const port = 8000;
 
-import * as http from 'http'; 
-const server = http.createServer(app);
+import * as http from 'http';
+const server = http.createServer(app); 
 
 import {Server} from 'socket.io';
-const io = new Server(server);
+const io = new Server(server); 
 
 app.use(express.static(path.join(__dirname,'../dist')));
 
-app.get('/',(req:express.Request,res:express.Response)=>{
-    console.log(__dirname);
-    res.sendFile(path.join(__dirname,'../dist/index.html'));
+app.get('/',(req:Request,res:Response): void => {
+    console.log(__dirname); 
+    res.sendFile(path.join(__dirname,'../public/index.html'));
 });
 
 io.on('connection',(socket) => {
-    console.log('A user connected');
-    io.emit('test-log',socket.id);
+    console.log(socket.id);
+    io.emit('test-log',socket.id); 
 });
 
 server.listen(port,hostname, () => {

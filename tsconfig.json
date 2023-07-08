@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "allowJs": true,
+    "allowJs": false,
+    "noImplicitAny": true,
     "removeComments": true,
     "resolveJsonModule":true,
     "typeRoots": ["./node_modules/@types"],
@@ -15,7 +16,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "moduleResolution": "Node",
-    "skipLibCheck": true
+    "skipLibCheck": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

@@ -1,7 +1,12 @@
-import * as BABYLON from 'babylonjs';
+import { Engine } from 'babylonjs';
+// import { Scene } from 'babylonjs';
+// import { ArcRotateCamera } from 'babylonjs';
+// import { HemisphericLight } from 'babylonjs';
+
+
 
 class babylon_app {
-    canvas: HTMLCanvasElement; 
+    canvas: HTMLCanvasElement;     
     engine: BABYLON.Engine;
     scene: BABYLON.Scene;
     camera: BABYLON.ArcRotateCamera; 

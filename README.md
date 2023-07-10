@@ -23,6 +23,14 @@
 - Other stuff that tended to use `esbuild-node-tsc`, which I decided was unnecessary, but may be linked below. 
 - The search "migrating from webpack to esbuild" produces some interesting links. 
 
+Note that a drawback of esbuild is that it doesn't throw errors at compile ([see e.g.](https://github.com/evanw/esbuild/issues/1631), or directly [from the docs](https://esbuild.github.io/content-types/#typescript)). You can run `tsc -noEmit` to actually get compile errors, but it's slow. So maybe just pay attention to the editor? 
+
+That whole [section on TypeScript](https://esbuild.github.io/content-types/#typescript) might actually be an interesting read. 
+
+Things to read about 
+- Typescript/Javascript generics, of all forms. 
+- More on promises, async, await. 
+
 #
 
 ## Initialization Steps 
@@ -88,3 +96,24 @@
 - Aaaand it works. And holy crap is it fast. 
 
 
+## Promises 
+```ts
+        // const delay = new Promise<boolean>
+        // var timeout_state = false; 
+        // const timeout = setTimeout((timeout_state) => {timeout_state=true},100,timeout_state);
+        
+
+        // var delay = new Promise<boolean>((resolve,reject) => {
+        //     const timeout = setTimeout(() => {
+        //         resolve(true); 
+        //     }, 2000);
+        // });
+        
+
+        // delay.then((resolve_input:boolean) => {
+        //     console.log(`resolve(${resolve_input}) Called`);
+        // }); 
+        // delay.catch((reject_input:Error) => {
+        //     console.log(`reject(${reject_input.message}) Called`);
+        // });
+```

@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "private": true,
-  "scripts": {
-    "build": "rm -rf dist && node ./esbuild_server.mjs && node ./esbuild_index.mjs",
+  "scripts": {    
+    "server": "node ./esbuild_server.mjs",
+    "index": "node ./esbuild_index.mjs",
+    "babylon_test": "node ./esbuild_babylon_test.mjs",
+    "build": "rm -rf dist && npm run server && npm run index && npm run babylon_test",
     "start": "node ./dist/server.js",
     "restart": "npm run build && npm run start"
   },

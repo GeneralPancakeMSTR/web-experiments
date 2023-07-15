@@ -1,5 +1,4 @@
 import * as BABYLON from 'babylonjs';
-// const BABYLON = require('babylonjs');
 
 //////////////// Custom Transform Node ////////////////
 class CustomTransformNode extends BABYLON.TransformNode {
@@ -7,7 +6,7 @@ class CustomTransformNode extends BABYLON.TransformNode {
         super(`${name}_center_of_transform`); 
     };
 
-    MatrixTransform(transform:BABYLON.Matrix):void {
+    set MatrixTransform(transform:BABYLON.Matrix) {
         // https://forum.babylonjs.com/t/how-to-apply-matrix-to-mesh/1350
 
         let scaling = new BABYLON.Vector3(); 
@@ -19,6 +18,10 @@ class CustomTransformNode extends BABYLON.TransformNode {
         this.scaling = scaling; 
         this.rotationQuaternion = rotationQuaternion; 
         this.position = position; 
+    };
+
+    get MatrixTransform():BABYLON.Matrix {
+        return this.computeWorldMatrix(); 
     };
 
     appendName(string:string):string {
@@ -41,13 +44,11 @@ class CustomTransformNode extends BABYLON.TransformNode {
 // its parent node. 
 
 abstract class CustomMeshAssembly<Type extends BABYLON.Mesh> extends CustomTransformNode {    
-    protected scene: BABYLON.Scene; 
-    
+    protected scene: BABYLON.Scene;     
     protected abstract meshes: Array<Type>;
-    protected abstract build():Array<Type>;
+    protected abstract build(): Array<Type> ;
 
-    private local_meshes_transform: BABYLON.Matrix;     
-    
+    private local_meshes_transform: BABYLON.Matrix;    
 
     constructor(name:string,scene:BABYLON.Scene){        
         super(name); 
@@ -78,25 +79,6 @@ abstract class CustomMeshAssembly<Type extends BABYLON.Mesh> extends CustomTrans
     protected bind_meshes():void {
         this.meshes.forEach(mesh => mesh.parent = this); 
     };
-    
-    // Aka transform with respect to transform node (local transform)
-    // MatrixTransformMeshAssembly(transform:BABYLON.Matrix):void {
-    //     this.local_meshes_transform = transform; 
-
-    //     let scaling = new BABYLON.Vector3(); 
-    //     let rotationQuaternion = new BABYLON.Quaternion(); 
-    //     let position = new BABYLON.Vector3(); 
-
-    //     transform.decompose(scaling,rotationQuaternion,position); 
-
-    //     this.meshes.forEach(mesh => {
-    //         mesh.scaling = scaling; 
-    //         mesh.rotationQuaternion = rotationQuaternion; 
-    //         mesh.position = position; 
-    //     }); 
-    // };
-
-
 };
 
 //////////////// Plane ////////////////
@@ -126,7 +108,6 @@ export class CustomPlane extends CustomMeshAssembly<BABYLON.Mesh>{
         let mesh = BABYLON.MeshBuilder.CreatePlane(this.appendName('plane_mesh'),this.options,this.scene); 
         return new Array(mesh);
     };
-
 };
 
 //////////////// Axes (CustomAxes) ////////////////
@@ -206,8 +187,8 @@ export class CustomAxes extends CustomTransformNode{
         // Nevermind I was modifying the axes, instead of transforming them into new vectors, 
         // classic mistake. 
 
-        let world_matrix = this.computeWorldMatrix().clone(); 
-        // let translation_matrix = BABYLON.Matrix.Translation(this.position.x,this.position.y,this.position.z); 
+        let world_matrix = this.computeWorldMatrix().clone();         
+        
         let translation_matrix = BABYLON.Matrix.Translation(this.absolutePosition._x,this.absolutePosition._y,this.absolutePosition._z); 
 
         let orientation_matrix = world_matrix.multiply(translation_matrix.invert());        
@@ -226,7 +207,7 @@ export class CustomAxes extends CustomTransformNode{
         return BABYLON.Vector3.TransformCoordinates(this.z_axis,this.OrientationMatrix); 
     };
 
-    // [ ] Maybe need to implement absolute X/Y/Z as well 
+    // [ ] Maybe should implement absolute X/Y/Z as well 
 };
 
 
@@ -248,17 +229,15 @@ export class TransformLineAssembly extends CustomMeshAssembly<BABYLON.LinesMesh>
         'Y':() => {return new BABYLON.Vector3(0,1,0)},
         'Z':() => {return new BABYLON.Vector3(0,0,1)}    
     };
-    
 
     constructor(name:string,scene:BABYLON.Scene,options?:TransformLineOptions){
-        super(name,scene);        
-        
+        super(name,scene);
+
         this.endpoint = BABYLON.Vector3.FromArray(options?.axis || new Array(1,0,0));
 
         this.meshes = this.build();
         
         this.bind_meshes(); 
-
     };
 
     protected build():Array<BABYLON.LinesMesh>{
@@ -274,70 +253,10 @@ export class TransformLineAssembly extends CustomMeshAssembly<BABYLON.LinesMesh>
 
     get absolute_origin():BABYLON.Vector3 {        
         return BABYLON.Vector3.TransformCoordinates(this.origin,this.LocalTransform.multiply(this.getWorldMatrix()));
-
     };
 
     get absolute_endpoint():BABYLON.Vector3 {        
         return BABYLON.Vector3.TransformCoordinates(this.endpoint,this.LocalTransform.multiply(this.getWorldMatrix()));
     };
+
 };
-
-
-// type Vector3 = [number,number,number];
-
-// 'Arbitrary':(direction:Vector3) => {return BABYLON.Vector3.FromArray(direction)}
-
-// interface TransformLineOptions{
-//     axis?: [number,number,number];     
-// };
-
-
-// export class TransformLine extends CustomTransformNode {
-//     origin:BABYLON.Vector3 = BABYLON.Vector3.Zero();  
-//     endpoint:BABYLON.Vector3; 
-    
-//     line_mesh:BABYLON.LinesMesh;
-
-//     scene:BABYLON.Scene; 
-
-//     constructor(name:string,options:TransformLineOptions,scene:BABYLON.Scene){
-//         super(name);
-//         this.scene = scene; 
-
-//         switch(options.Axis || 'X'){
-//             case 'X':
-//                 this.endpoint = new BABYLON.Vector3(1,0,0); 
-//                 break;             
-//             case 'Y':
-//                 this.endpoint = new BABYLON.Vector3(0,1,0); 
-//                 break;
-//             case 'Z': 
-//                 this.endpoint = new BABYLON.Vector3(0,0,1); 
-//                 break;
-//         };
-
-//         this.line_mesh = this.build(); 
-//         this.line_mesh.parent = this; 
-
-//     };
-
-//     private build():BABYLON.LinesMesh {
-//         let line_options = {
-//             points:new Array(this.origin, this.endpoint),
-//             updatable:true, 
-//         };
-        
-//         let line_mesh = BABYLON.MeshBuilder.CreateLines(this.appendName('line_mesh'),line_options,this.scene);
-
-//         return line_mesh;         
-//     };
-
-//     get absolute_origin():BABYLON.Vector3{
-//         return BABYLON.Vector3.TransformCoordinates(this.origin,this.getWorldMatrix());
-//     };
-
-//     get absolute_endpoint():BABYLON.Vector3{
-//         return BABYLON.Vector3.TransformCoordinates(this.endpoint,this.getWorldMatrix());
-//     };
-
-// };

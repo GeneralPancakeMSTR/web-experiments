@@ -18,6 +18,10 @@ app.get('/',(req:Request,res:Response): void => {
     res.sendFile(path.join(__dirname,'../public/index.html'));
 });
 
+app.get('/babylon_test',(req:Request,res:Response): void => {    
+    res.sendFile(path.join(__dirname,'../public/babylon_test.html'));
+});
+
 io.on('connection',(socket) => {
     console.log(socket.id);
     io.emit('test-log',socket.id); 

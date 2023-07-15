@@ -16,7 +16,7 @@ import { CustomAxes } from './babylon_objects';
 import { TransformLineAssembly } from './babylon_objects';
 
 
-class babylon_app {
+class babylon_test {
     canvas: HTMLCanvasElement;     
     engine: BABYLON.Engine;
     scene: BABYLON.Scene;
@@ -40,84 +40,58 @@ class babylon_app {
 
         //////////////// Stuff ////////////////
         var RX = BABYLON.Matrix.RotationAxis(BABYLON.Axis.X, Math.PI/2);
-        var RY = BABYLON.Matrix.RotationAxis(BABYLON.Axis.Y, Math.PI/4);
-        var RZ = BABYLON.Matrix.RotationAxis(BABYLON.Axis.Z, Math.PI/4);
+        var RY = BABYLON.Matrix.RotationAxis(BABYLON.Axis.Y, Math.PI/2);
+        var RZ = BABYLON.Matrix.RotationAxis(BABYLON.Axis.Z, Math.PI/2);
 
-        var TZ = BABYLON.Matrix.Translation(0,0,1);
+        var T = BABYLON.Matrix.Translation(-1,1,1);
+        var TX = BABYLON.Matrix.Translation(1,0,0);
+        var TY = BABYLON.Matrix.Translation(0,1,0);
+        var TZ = BABYLON.Matrix.Translation(0,0,1);        
 
         //// Ground 
         // "Demonstrates" local vs. global (Node) axes
         const ground = new CustomPlane('ground',{'size':2,'sideOrientation':BABYLON.Mesh.DOUBLESIDE},this.scene);
         ground.LocalTransform = TZ.multiply(RX);
         const ground_axes = new CustomAxes('ground_axes',this.scene,{size:.5}); 
-        ground_axes.MatrixTransform(ground.LocalTransform); 
+        ground_axes.MatrixTransform = ground.LocalTransform; 
 
         //// Other Stuff (e.g. axes, lines)
-
-        const world_axes = new CustomAxes('world_axes',this.scene); 
-
-        RX = BABYLON.Matrix.RotationAxis(BABYLON.Axis.X, Math.PI/4);
-        var T = BABYLON.Matrix.Translation(-1,1,1);
-
+        const world_axes = new CustomAxes('world_axes',this.scene);         
         
+        const transform_line = new TransformLineAssembly('test_line',this.scene,{axis:[0,1,0]}); 
         
+        const transform_line_node_axes = new CustomAxes('transform_line_node_axes',this.scene,{size:.25});
+        transform_line_node_axes.parent = transform_line;        
         
-        // const transform_line = new TransformLine('test_line',{Axis:'Y'},this.scene);        
-        // transform_line.MatrixTransform(RX.multiply(T));
-        // const transform_line = new TransformLineAssembly('test_line',{axis:'X'},this.scene); 
-        const transform_line = new TransformLineAssembly('test_line',this.scene,{axis:[1,0,0]}); 
-        const transform_line_node_axes = new CustomAxes('transform_line_node_axes',this.scene,{size:.1});
-        transform_line_node_axes.parent = transform_line;
+        transform_line.MatrixTransform = T;
 
-        const line_origin_sphere = BABYLON.MeshBuilder.CreateSphere('line_origin_sphere',{diameter:.1},this.scene);
-
-        const line_endpoint_sphere = BABYLON.MeshBuilder.CreateSphere('line_endpoint_sphere',{diameter:.1},this.scene);
+        const line_origin = new CustomAxes('line_origin',this.scene,{size:.125});
+        const line_endpoint = new CustomAxes('line_endpoint',this.scene,{size:.125});
         
-        T = BABYLON.Matrix.Translation(0,1,1);
-        transform_line.MatrixTransform(RX.multiply(T));
-
-        T = BABYLON.Matrix.Translation(0,0,1);
-        transform_line.LocalTransform = RZ.multiply(T);
-
-        line_origin_sphere.position = transform_line.absolute_origin;
-        line_endpoint_sphere.position = transform_line.absolute_endpoint;
-
-
-
-
-
-
-        const origin_axes = new CustomAxes('origin_axes',this.scene,{size:.25});
-        const endpoint_axes = new CustomAxes('endpoint_axes',this.scene,{size:.25});
-
-        // origin_axes.parent = transform_line;
-
-        // endpoint_axes.position = transform_line.absolute_endpoint; 
-        // endpoint_axes.rotation.y = Math.PI/4; 
-        
-        const origin_sphere_x = BABYLON.MeshBuilder.CreateSphere('origin_sphere_x',{diameter:.1},this.scene);
-        const origin_sphere_y = BABYLON.MeshBuilder.CreateSphere('origin_sphere_y',{diameter:.1},this.scene);
-        const origin_sphere_z = BABYLON.MeshBuilder.CreateSphere('origin_sphere_z',{diameter:.1},this.scene);
+        const axes_sphere_x = BABYLON.MeshBuilder.CreateSphere('axes_sphere_x',{diameter:.1},this.scene);
+        const axes_sphere_y = BABYLON.MeshBuilder.CreateSphere('axes_sphere_y',{diameter:.1},this.scene);
+        const axes_sphere_z = BABYLON.MeshBuilder.CreateSphere('axes_sphere_z',{diameter:.1},this.scene);
 
         const delay_ms = 100;
         var angle_y = 0;
+        RX = BABYLON.Matrix.RotationAxis(BABYLON.Axis.X, Math.PI/4);
 
         let delay_reset = false; 
         function on_delay(){
             // console.log('Timer complete, reset');
             angle_y += Math.PI/32; 
             
-            RY = BABYLON.Matrix.RotationAxis(BABYLON.Axis.Y, angle_y);            
-            // transform_line.MatrixTransform(RX.multiply(RY).multiply(T));            
+            RY = BABYLON.Matrix.RotationAxis(BABYLON.Axis.Y, angle_y);
+            transform_line.MatrixTransform = RX.multiply(RY).multiply(T);
+            
+            axes_sphere_x.position = transform_line_node_axes.X; 
+            axes_sphere_y.position = transform_line_node_axes.Y; 
+            axes_sphere_z.position = transform_line_node_axes.Z;
 
-           origin_sphere_x.position = origin_axes.X; 
-           origin_sphere_y.position = origin_axes.Y; 
-           origin_sphere_z.position = origin_axes.Z;
-
-        //    endpoint_axes.position = transform_line.absolute_endpoint; 
-           
-           delay_reset = true; 
-
+            line_origin.position = transform_line.absolute_origin; 
+            line_endpoint.position = transform_line.absolute_endpoint; 
+        
+            delay_reset = true; 
         };
 
         var time_delay = delay(delay_ms); 
@@ -131,8 +105,6 @@ class babylon_app {
                 delay_reset = false; 
             };
         });
-
-        
     };
 
     // Doesn't like this
@@ -152,5 +124,5 @@ class babylon_app {
 };
 
 
-export {babylon_app};
+export {babylon_test};
 

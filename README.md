@@ -133,3 +133,10 @@ npm install --save-dev @babylonjs/materials
 npm install --save-dev @babylonjs/loaders
 npm install --save-dev @babylonjs/gui
 ```
+
+## Svelte ?
+Let's start with 
+`npm install --save-dev svelte`
+
+### References 
+- [Maybe useful template example](https://github.com/Tazeg/svelte-esbuild-template)

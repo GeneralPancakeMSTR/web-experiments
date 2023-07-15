@@ -117,3 +117,19 @@ Things to read about
         //     console.log(`reject(${reject_input.message}) Called`);
         // });
 ```
+
+## Babylon Packages 
+[Babylon.js ES6 support with Tree Shaking](https://doc.babylonjs.com/setup/frameworkPackages/es6Support#available-packages)
+
+Basically, instead of loading the entirety of Babylon (e.g. `import * as BABYLON from 'babylonjs'`), just load the components that you need. But the right way to do this is with `@babylon` packages. 
+
+The point here is that the build will be orders of magnitude faster than if all of babylon is included. 
+
+Here's what I'm going to start with (probably won't need `loaders` or `gui` for a while). 
+
+```
+npm install --save-dev @babylonjs/core
+npm install --save-dev @babylonjs/materials
+npm install --save-dev @babylonjs/loaders
+npm install --save-dev @babylonjs/gui
+```

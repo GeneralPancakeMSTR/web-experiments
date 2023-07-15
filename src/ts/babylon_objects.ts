@@ -1,17 +1,27 @@
-import * as BABYLON from 'babylonjs';
+import { Scene } from '@babylonjs/core';
+import { Matrix } from '@babylonjs/core';
+import { Vector3 } from '@babylonjs/core';
+import { Quaternion } from '@babylonjs/core';
+import { Vector4 } from '@babylonjs/core';
+import { Color3 } from '@babylonjs/core';
+import { TransformNode } from '@babylonjs/core';
+import { Mesh } from '@babylonjs/core';
+import { MeshBuilder } from '@babylonjs/core';
+import { Plane } from '@babylonjs/core';
+import { LinesMesh } from '@babylonjs/core';
 
 //////////////// Custom Transform Node ////////////////
-class CustomTransformNode extends BABYLON.TransformNode {
+class CustomTransformNode extends TransformNode {
     constructor(name:string){
         super(`${name}_center_of_transform`); 
     };
 
-    set MatrixTransform(transform:BABYLON.Matrix) {
+    set MatrixTransform(transform:Matrix) {
         // https://forum.babylonjs.com/t/how-to-apply-matrix-to-mesh/1350
 
-        let scaling = new BABYLON.Vector3(); 
-        let rotationQuaternion = new BABYLON.Quaternion(); 
-        let position = new BABYLON.Vector3(); 
+        let scaling = new Vector3(); 
+        let rotationQuaternion = new Quaternion(); 
+        let position = new Vector3(); 
         
         transform.decompose(scaling,rotationQuaternion,position); 
 
@@ -20,7 +30,7 @@ class CustomTransformNode extends BABYLON.TransformNode {
         this.position = position; 
     };
 
-    get MatrixTransform():BABYLON.Matrix {
+    get MatrixTransform():Matrix {
         return this.computeWorldMatrix(); 
     };
 
@@ -43,29 +53,29 @@ class CustomTransformNode extends BABYLON.TransformNode {
 // Which enables you to keep track of how the mesh assembly is transformed with respect to 
 // its parent node. 
 
-abstract class CustomMeshAssembly<Type extends BABYLON.Mesh> extends CustomTransformNode {    
-    protected scene: BABYLON.Scene;     
+abstract class CustomMeshAssembly<Type extends Mesh> extends CustomTransformNode {    
+    protected scene: Scene;     
     protected abstract meshes: Array<Type>;
     protected abstract build(): Array<Type> ;
 
-    private local_meshes_transform: BABYLON.Matrix;    
+    private local_meshes_transform: Matrix;    
 
-    constructor(name:string,scene:BABYLON.Scene){        
+    constructor(name:string,scene:Scene){        
         super(name); 
         this.scene = scene; 
-        this.local_meshes_transform = BABYLON.Matrix.Identity(); 
+        this.local_meshes_transform = Matrix.Identity(); 
     };
 
-    get LocalTransform():BABYLON.Matrix {
+    get LocalTransform():Matrix {
         return this.local_meshes_transform;
     }
 
-    set LocalTransform(transform:BABYLON.Matrix) {
+    set LocalTransform(transform:Matrix) {
         this.local_meshes_transform = transform; 
 
-        let scaling = new BABYLON.Vector3(); 
-        let rotationQuaternion = new BABYLON.Quaternion(); 
-        let position = new BABYLON.Vector3(); 
+        let scaling = new Vector3(); 
+        let rotationQuaternion = new Quaternion(); 
+        let position = new Vector3(); 
 
         transform.decompose(scaling,rotationQuaternion,position); 
 
@@ -88,24 +98,24 @@ export interface CustomPlaneOptions {
     height?: number | undefined, 
     sideOrientation?: number | undefined,
     updatable?: boolean | undefined,
-    sourcePlane?: BABYLON.Plane | undefined, 
-    frontUVs?: BABYLON.Vector4 | undefined, 
-    backUVs?: BABYLON.Vector4 | undefined, 
+    sourcePlane?: Plane | undefined, 
+    frontUVs?: Vector4 | undefined, 
+    backUVs?: Vector4 | undefined, 
 };
 
-export class CustomPlane extends CustomMeshAssembly<BABYLON.Mesh>{
-    meshes: Array<BABYLON.Mesh>;     
+export class CustomPlane extends CustomMeshAssembly<Mesh>{
+    meshes: Array<Mesh>;
     options: CustomPlaneOptions; 
 
-    constructor(name:string,options:CustomPlaneOptions,scene:BABYLON.Scene){ 
+    constructor(name:string,options:CustomPlaneOptions,scene:Scene){ 
         super(name,scene);        
         this.options = options; 
         this.meshes = this.build(); 
         this.bind_meshes();         
     };
 
-    protected build():Array<BABYLON.Mesh>{
-        let mesh = BABYLON.MeshBuilder.CreatePlane(this.appendName('plane_mesh'),this.options,this.scene); 
+    protected build():Array<Mesh>{
+        let mesh = MeshBuilder.CreatePlane(this.appendName('plane_mesh'),this.options,this.scene); 
         return new Array(mesh);
     };
 };
@@ -116,22 +126,22 @@ interface CustomAxesOptions {
 }; 
 
 export class CustomAxes extends CustomTransformNode{
-    scene:BABYLON.Scene;     
+    scene:Scene;     
     options:CustomAxesOptions; 
 
-    private x_axis:BABYLON.Vector3; 
-    private y_axis:BABYLON.Vector3;
-    private z_axis:BABYLON.Vector3; 
+    private x_axis:Vector3; 
+    private y_axis:Vector3;
+    private z_axis:Vector3; 
 
-    private x_line:BABYLON.LinesMesh; 
-    private y_line:BABYLON.LinesMesh;
-    private z_line:BABYLON.LinesMesh; 
+    private x_line:LinesMesh; 
+    private y_line:LinesMesh;
+    private z_line:LinesMesh; 
 
-    private ColorRed = new BABYLON.Color3(1,0,0);
-    private ColorGreen = new BABYLON.Color3(0,1,0);
-    private ColorBlue = new BABYLON.Color3(0,0,1);   
+    private ColorRed = new Color3(1,0,0);
+    private ColorGreen = new Color3(0,1,0);
+    private ColorBlue = new Color3(0,0,1);   
 
-    constructor(name:string,scene:BABYLON.Scene,options?:CustomAxesOptions){
+    constructor(name:string,scene:Scene,options?:CustomAxesOptions){
         super(name); 
         this.scene = scene; 
 
@@ -139,9 +149,9 @@ export class CustomAxes extends CustomTransformNode{
             size:options?.size || 1,
         };
 
-        this.x_axis = new BABYLON.Vector3(this.options.size,0,0);
-        this.y_axis = new BABYLON.Vector3(0,this.options.size,0);
-        this.z_axis = new BABYLON.Vector3(0,0,this.options.size);
+        this.x_axis = new Vector3(this.options.size,0,0);
+        this.y_axis = new Vector3(0,this.options.size,0);
+        this.z_axis = new Vector3(0,0,this.options.size);
 
         [this.x_line,this.y_line,this.z_line] = this.build(); 
 
@@ -150,32 +160,32 @@ export class CustomAxes extends CustomTransformNode{
         this.z_line.parent = this;
     };
 
-    private build(): [BABYLON.LinesMesh,BABYLON.LinesMesh,BABYLON.LinesMesh] {
+    private build(): [LinesMesh,LinesMesh,LinesMesh] {
         let x_options = {
-            points:new Array(BABYLON.Vector3.Zero(), this.x_axis),
+            points:new Array(Vector3.Zero(), this.x_axis),
             updatable:true, 
         };    
-        let x_line = BABYLON.MeshBuilder.CreateLines(this.appendName('x_line'),x_options,this.scene);
+        let x_line = MeshBuilder.CreateLines(this.appendName('x_line'),x_options,this.scene);
         x_line.color = this.ColorRed; 
 
         let y_options = {
-            points:new Array(BABYLON.Vector3.Zero(), this.y_axis),
+            points:new Array(Vector3.Zero(), this.y_axis),
             updatable:true, 
         };
-        let y_line = BABYLON.MeshBuilder.CreateLines(this.appendName('y_line'),y_options,this.scene);
+        let y_line = MeshBuilder.CreateLines(this.appendName('y_line'),y_options,this.scene);
         y_line.color = this.ColorGreen; 
 
         let z_options = {
-            points:new Array(BABYLON.Vector3.Zero(), this.z_axis),
+            points:new Array(Vector3.Zero(), this.z_axis),
             updatable:true, 
         };
-        let z_line = BABYLON.MeshBuilder.CreateLines(this.appendName('z_line'),z_options,this.scene);
+        let z_line = MeshBuilder.CreateLines(this.appendName('z_line'),z_options,this.scene);
         z_line.color = this.ColorBlue;
 
         return [x_line,y_line,z_line];
     };
 
-    get OrientationMatrix(): BABYLON.Matrix {
+    get OrientationMatrix(): Matrix {
         // Returns the world matrix of this multiplied 
         // by the inverse of this's position as a translation matrix,
         // Effectively producing this's transform matrix, minus position. 
@@ -189,22 +199,22 @@ export class CustomAxes extends CustomTransformNode{
 
         let world_matrix = this.computeWorldMatrix().clone();         
         
-        let translation_matrix = BABYLON.Matrix.Translation(this.absolutePosition._x,this.absolutePosition._y,this.absolutePosition._z); 
+        let translation_matrix = Matrix.Translation(this.absolutePosition._x,this.absolutePosition._y,this.absolutePosition._z); 
 
         let orientation_matrix = world_matrix.multiply(translation_matrix.invert());        
         return orientation_matrix; 
     };
 
-    get X():BABYLON.Vector3 {        
-        return BABYLON.Vector3.TransformCoordinates(this.x_axis,this.OrientationMatrix);         
+    get X():Vector3 {        
+        return Vector3.TransformCoordinates(this.x_axis,this.OrientationMatrix);         
     };
 
-    get Y():BABYLON.Vector3 {        
-        return BABYLON.Vector3.TransformCoordinates(this.y_axis,this.OrientationMatrix); 
+    get Y():Vector3 {        
+        return Vector3.TransformCoordinates(this.y_axis,this.OrientationMatrix); 
     };
 
-    get Z():BABYLON.Vector3 {        
-        return BABYLON.Vector3.TransformCoordinates(this.z_axis,this.OrientationMatrix); 
+    get Z():Vector3 {        
+        return Vector3.TransformCoordinates(this.z_axis,this.OrientationMatrix); 
     };
 
     // [ ] Maybe should implement absolute X/Y/Z as well 
@@ -217,46 +227,46 @@ interface TransformLineOptions {
     axis?: [number,number,number]
 };
 
-export class TransformLineAssembly extends CustomMeshAssembly<BABYLON.LinesMesh> {    
-    origin:BABYLON.Vector3 = BABYLON.Vector3.Zero();     
-    endpoint: BABYLON.Vector3; 
+export class TransformLineAssembly extends CustomMeshAssembly<LinesMesh> {    
+    origin:Vector3 = Vector3.Zero();     
+    endpoint: Vector3; 
 
-    meshes:Array<BABYLON.LinesMesh>; 
+    meshes:Array<LinesMesh>; 
 
     // Not used 
     private named_axes = {
-        'X':() => {return new BABYLON.Vector3(1,0,0)},
-        'Y':() => {return new BABYLON.Vector3(0,1,0)},
-        'Z':() => {return new BABYLON.Vector3(0,0,1)}    
+        'X':() => {return new Vector3(1,0,0)},
+        'Y':() => {return new Vector3(0,1,0)},
+        'Z':() => {return new Vector3(0,0,1)}    
     };
 
-    constructor(name:string,scene:BABYLON.Scene,options?:TransformLineOptions){
+    constructor(name:string,scene:Scene,options?:TransformLineOptions){
         super(name,scene);
 
-        this.endpoint = BABYLON.Vector3.FromArray(options?.axis || new Array(1,0,0));
+        this.endpoint = Vector3.FromArray(options?.axis || new Array(1,0,0));
 
         this.meshes = this.build();
         
         this.bind_meshes(); 
     };
 
-    protected build():Array<BABYLON.LinesMesh>{
+    protected build():Array<LinesMesh>{
         let line_options = {
             points:new Array(this.origin,this.endpoint),
             updatable:true
         };
 
-        let line_mesh = BABYLON.MeshBuilder.CreateLines(this.appendName('line_mesh'),line_options,this.scene);
+        let line_mesh = MeshBuilder.CreateLines(this.appendName('line_mesh'),line_options,this.scene);
 
         return new Array(line_mesh);
     };
 
-    get absolute_origin():BABYLON.Vector3 {        
-        return BABYLON.Vector3.TransformCoordinates(this.origin,this.LocalTransform.multiply(this.getWorldMatrix()));
+    get absolute_origin():Vector3 {        
+        return Vector3.TransformCoordinates(this.origin,this.LocalTransform.multiply(this.getWorldMatrix()));
     };
 
-    get absolute_endpoint():BABYLON.Vector3 {        
-        return BABYLON.Vector3.TransformCoordinates(this.endpoint,this.LocalTransform.multiply(this.getWorldMatrix()));
+    get absolute_endpoint():Vector3 {        
+        return Vector3.TransformCoordinates(this.endpoint,this.LocalTransform.multiply(this.getWorldMatrix()));
     };
 
 };

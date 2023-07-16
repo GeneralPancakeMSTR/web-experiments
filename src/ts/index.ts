@@ -1,8 +1,10 @@
-import {test_client} from './socket_clients';
+// import {test_client} from './socket_clients';
 
-const socketio_log = new test_client(); 
-socketio_log.appendLog(); 
+// const socketio_log = new test_client(); 
+// socketio_log.appendLog(); 
 
-const res = fetch('http://localhost:8000/api/test')
+import Component from '../svelte/index.svelte'
+new Component({ target: document.body });
 
-console.log(res); 
+// const res = fetch('http://localhost:8000/api/test')
+// console.log(res); 

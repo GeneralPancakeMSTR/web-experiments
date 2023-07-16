@@ -8,6 +8,7 @@
 - ~~Webpack~~
 - ESBuild
 - SocketIO
+- Svelte 
 
 ## Instructions 
 - Install `npm`
@@ -135,8 +136,76 @@ npm install --save-dev @babylonjs/gui
 ```
 
 ## Svelte ?
-Let's start with 
-`npm install --save-dev svelte`
+Take 2, using the [esbuild-svelte](https://github.com/EMH333/esbuild-svelte) repository as a reference. 
+
+```
+npm install @tsconfig/svelte
+npm install esbuild
+npm install esbuild-svelte
+npm install svelte
+npm install svelte-check
+npm install svelte-preprocess
+```
+
+This line needs to be removed from `tsconfig.json`, I don't know why 
+
+```json
+// Remove from tsconfig.json 
+"typeRoots": ["./node_modules/@types"],
+```
+
+The following needs to be added to `tsconfig.json`
+
+```json
+{
+    "compilerOptions": {
+        ...        
+        "types": [
+            "svelte"
+        ]
+    },
+}
+```
+
+And then you basically have to add some esbuild-svelte stuff to "the" `esbuild.mjs` file:
+
+```mjs
+import esbuild from 'esbuild';
+import esbuildSvelte from 'esbuild-svelte'; // Added 
+import sveltePreprocess from 'svelte-preprocess'; // Added 
+
+await esbuild.build({
+    logLevel:"info",
+    entryPoints: ['src/ts/index.ts'],
+    bundle:true,
+    minify:true,
+    sourcemap:true,
+    outfile:'dist/index.js',
+    plugins : [
+        esbuildSvelte({
+            preprocess: sveltePreprocess(), // Added this plugin 
+        }),
+    ],
+})
+```
+
+So now Svelte seems to work, except embedding `typescript` in `.svelte` files throws errors, which I don't like. I guess we could  try the [Svelte for VS Code plugin](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode), which I also don't like having to do. 
+
+Be sure to remove 
+
+```json
+"files.associations": {"*.svelte":"html"}
+```
+
+from VSCode settings, then add this: 
+
+```json
+"svelte.enable-ts-plugin":true
+```
+
+So now type-checking etc. seems to work with typescript embedded in svelte components, which is pretty cool tbh. Just wish you didn't need an extension to get that working. 
+
+That aside, not sure what to actually *do* with Svelte, now that I seem to have it working. 
 
 ### References 
 - [Maybe useful template example](https://github.com/Tazeg/svelte-esbuild-template)

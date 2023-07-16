@@ -26,12 +26,16 @@ class babylon_test {
     camera: ArcRotateCamera; 
     light: HemisphericLight; 
 
-    constructor() {
-        this.canvas = document.createElement("canvas");
-        this.canvas.id = "renderCanvas";
-        this.canvas.style.width = "100%";
-        this.canvas.style.height = "100%";
-        document.body.appendChild(this.canvas);
+    _test_matrix = Matrix.Identity(); 
+
+    constructor(canvas:HTMLCanvasElement) {
+        // Canvas now comes from svelte component
+        this.canvas = canvas; 
+        // this.canvas = document.createElement("canvas");
+        // this.canvas.id = "renderCanvas";
+        // this.canvas.style.width = "100%";
+        // this.canvas.style.height = "100%";
+        // document.body.appendChild(this.canvas);
         
         this.engine = new Engine(this.canvas,true); 
         this.scene = new Scene(this.engine); 
@@ -61,7 +65,9 @@ class babylon_test {
         //// Other Stuff (e.g. axes, lines)
         const world_axes = new CustomAxes('world_axes',this.scene);         
         
-        const transform_line = new TransformLineAssembly('test_line',this.scene,{axis:[0,1,0]}); 
+        const transform_line = new TransformLineAssembly('transform_line',this.scene,{axis:[0,1,0]}); 
+
+        const test_matrix_line = new TransformLineAssembly('test_matrix_line',this.scene,{axis:[0,1,0]});
         
         const transform_line_node_axes = new CustomAxes('transform_line_node_axes',this.scene,{size:.25});
         transform_line_node_axes.parent = transform_line;        
@@ -92,7 +98,7 @@ class babylon_test {
             axes_sphere_z.position = transform_line_node_axes.Z;
 
             line_origin.position = transform_line.absolute_origin; 
-            line_endpoint.position = transform_line.absolute_endpoint; 
+            line_endpoint.position = transform_line.absolute_endpoint;             
         
             delay_reset = true; 
         };
@@ -102,6 +108,8 @@ class babylon_test {
         time_delay.then(on_delay);         
 
         this.scene.registerBeforeRender(() => {
+            test_matrix_line.MatrixTransform = this.test_matrix;
+
             if(delay_reset){
                 time_delay = delay(delay_ms);
                 time_delay.then(on_delay); 
@@ -110,13 +118,13 @@ class babylon_test {
         });
     };
 
-    // Doesn't like this
-    // If you construct the engine before the canvas has been appended to the document,
-    // it renders at super low resolution. 
-    // Weird? 
-    // appendCanvas():void {
-    //     document.body.appendChild(this.canvas);
-    // };
+    get test_matrix():Matrix{
+        return this._test_matrix;
+    };
+
+    set test_matrix(MatrixArray:Array<number>){
+        this._test_matrix = Matrix.FromArray(MatrixArray);
+    };    
 
     runRenderLoop(): void {
         this.engine.runRenderLoop(() => {

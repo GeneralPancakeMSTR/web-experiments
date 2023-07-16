@@ -1,4 +1,6 @@
-import * as esbuild from 'esbuild'
+import esbuild from 'esbuild';
+import esbuildSvelte from 'esbuild-svelte';
+import sveltePreprocess from 'svelte-preprocess';
 
 const name = 'babylon_test';
 
@@ -8,5 +10,10 @@ await esbuild.build({
     bundle:true,
     minify:true,
     sourcemap:true,
-    outfile:`dist/${name}.js`
+    outfile:`dist/${name}.js`,
+    plugins : [
+        esbuildSvelte({
+            preprocess: sveltePreprocess(),
+        }),
+    ],
 })

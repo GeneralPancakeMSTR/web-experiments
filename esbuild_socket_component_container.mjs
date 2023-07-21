@@ -2,7 +2,7 @@ import esbuild from 'esbuild';
 import esbuildSvelte from 'esbuild-svelte';
 import sveltePreprocess from 'svelte-preprocess';
 
-const name = 'babylon_test';
+let name = 'socket_component_container'
 
 await esbuild.build({
     logLevel:"info",

@@ -1,13 +1,4 @@
-import { default as adapter_static } from '@sveltejs/adapter-static';
-import { default as adapter_node } from '@sveltejs/adapter-node';
-
-var adapter; 
-
-if(process.env.MODE === 'STATIC'){    
-    adapter = () => adapter_static();
-} else if (process.env.MODE === 'NODE') {       
-    adapter = () => adapter_node();
-}; 
+import adapter from '@sveltejs/adapter-node';
 
 import { vitePreprocess } from '@sveltejs/kit/vite';
 

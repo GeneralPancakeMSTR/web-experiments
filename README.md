@@ -4,7 +4,7 @@ This is designed to be run from `build` only. I don't really know how to get the
 
 ## Problem (mostly solved) 
 Once the application is running (from the command `npm restart`, preceded by `npm install` if just cloning this repository), it should be possible to navigate to `127.0.0.1:3000`, at which point (i.e. when the page loads): 
-- The SocketIO client running `+page.svelte` should connect to the SocketIO server running in `server.js` (which it seems to, as you can see the Socket's id printed out to the server's console).
+- The SocketIO client running in `+page.svelte` should connect to the SocketIO server running in `server.js` (which it seems to, as you can see the Socket's id printed out to the server's console).
 - The SocketIO client should receive a message ("Hello from Server") from the server (which it does, as you can see from the browser console).
 - **The SocketIO client should send a message ("Hello from client") to the server, which the server should print out to the console, which it does not.**
   - Okay so it turns out if you add the "ClientToServer" handler to the socket when it connects, i.e. inside the `io.on('connection'...` block, things work as expected. 
@@ -15,13 +15,17 @@ Interesting, I guess.
 
 Also setting the transport to `websocket` on the server and client sides doesn't seem to make a difference. 
 
+**On further inspection, `adapter-static` doesn't work as expected. Only the homepage works, dynamic routing seems to fail. Not sure how to resolve. Turn off `prerender=true` in global `+layout.ts` file for the moment otherwise "dynamic" routes break.**
+
+Maybe check this out: [Getting started with adapter-static](https://khromov.se/the-missing-guide-to-understanding-adapter-static-in-sveltekit/)/
+
+
+
 ## References 
 - [Using WebSockets With SvelteKit](https://joyofcode.xyz/using-websockets-with-sveltekit)
 - [How to Build a Static SvelteKit Site](https://www.philkruft.dev/blog/how-to-build-a-static-sveltekit-site/)
   - I got this sort of working, i.e. it builds, but I don't know how to serve it? 
   - Well I seem to have gotten it working, see [reddit comment](https://www.reddit.com/r/sveltejs/comments/11woaej/is_it_possible_to_use_the_adapterstatic_with/jd1nbog/)
-
-
 
 ## Initialization (Typescript skeleton project, no linting)
 ```bash
